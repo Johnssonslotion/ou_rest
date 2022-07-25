@@ -3,56 +3,99 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:custom_info_window/custom_info_window.dart';
+import 'package:toilet_app_refact/config/constants.dart';
 import 'package:toilet_app_refact/widgets/map_component.dart';
 
 
-class mapControl extends ChangeNotifier{
-  final LatLng center=const LatLng(37.33,126.58);
-  final LatLng info_temp=const LatLng(37.33,126.58);
+class mapControl extends ChangeNotifier {
+  final LatLng center     = const LatLng(37.5446953, 127.0599957);
+  final LatLng gps_fake   = const LatLng(37.5446953, 127.0569957);
+  final LatLng info_temp  = const LatLng(37.5446953, 127.0569957666);
+
   late bool enabled = false;
   late Position cords;
 
+
   final Completer<GoogleMapController> _controller = Completer();
   final CustomInfoWindowController customInfoWindowController = CustomInfoWindowController();
-  Set<Marker> markers = {};
-
-
-  void onMapCreated(GoogleMapController controller){
-    _controller.complete(controller);
-  }
+  late Set<Marker> markers = {};
+  late Set<Circle> circles = {};
 
 
 
 
 
 
+  // void oninitMarker() {
+  //   // cords = await _determinePosition();
+  //   // print("cords");
+  //   // circles.add(
+  //   //     Circle(
+  //   //       circleId: CircleId("GPS"),
+  //   //       center: LatLng(cords.latitude, cords.longitude),
+  //   //       radius: 20,
+  //   //       fillColor: Colors.white,
+  //   //       strokeColor: defaultAmber,
+  //   //       strokeWidth: 10,
+  //   //     )
+  //   // );
+  //   markers.add(
+  //       Marker(
+  //           markerId: const MarkerId("markerID"),
+  //           position: info_temp,
+  //           draggable: true,
+  //           onTap: () {
+  //             customInfoWindowController.addInfoWindow!(
+  //                 const distanceMarker(dis_level: 0, dis_minute: 1),
+  //                 info_temp
+  //             );
+  //           }
+  //       )
+  //   );
+  // }
 
-   void oninit() async {
+  //
+  // void onMapCreated(GoogleMapController controller) async {
+  //     circles.add(
+  //         Circle(
+  //           circleId: CircleId("GPS"),
+  //           center: center,
+  //           radius: 20,
+  //           fillColor: Colors.white,
+  //           strokeColor: defaultAmber,
+  //           strokeWidth: 5,
+  //         )
+  //     );
+  //
+  //
+  //   markers.add(
+  //       Marker(
+  //           markerId: const MarkerId("markerID"),
+  //           position: info_temp,
+  //           draggable: true,
+  //           onTap: () {
+  //             // GoRouter.of(context).go('/details');
+  //             // customInfoWindowController.addInfoWindow!(
+  //             //     const distanceMarker(dis_level: 0, dis_minute: 1),
+  //             //     info_temp
+  //             // );
+  //           }
+  //       )
+  //   );
+  //   _controller.complete(controller);
+  // }
+
+
+  void oninit() async {
     print("####################### map init ####################");
+    enabled = await Geolocator.isLocationServiceEnabled();
+    print("GPS status : $enabled");
+    cords = await _determinePosition();
 
-     enabled = await Geolocator.isLocationServiceEnabled();
-     print("GPS status : $enabled");
-     if (enabled == true){
-       cords = _determinePosition() as Position;
-       print(cords);
-     } else {
-      print("GPS can't initized");
-     }
-     markers.add(
-         Marker(
-             markerId: const MarkerId("markerID"),
-             position: info_temp,
-             onTap:(){
-               customInfoWindowController.addInfoWindow!(
-                   const distanceMarker(dis_level: 0, dis_minute: 1),
-                   info_temp
-               );
-             }
-         )
-     );
-   }
+  }
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
@@ -92,12 +135,4 @@ class mapControl extends ChangeNotifier{
   }
 
 
-
-
 }
-
-
-
-
-
-
